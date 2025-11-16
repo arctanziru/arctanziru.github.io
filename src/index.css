@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
 @layer components {
   section {
@@ -14,12 +14,14 @@
 
   * {
     @apply scroll-smooth select-none;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     box-sizing: border-box;
     scrollbar-width: none;
   }
 
+  html,
   body {
-    @apply w-screen
+    @apply w-screen;
+    background-color: #070d16;
   }
 }

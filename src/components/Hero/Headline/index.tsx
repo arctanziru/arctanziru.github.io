@@ -1,47 +1,77 @@
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
-export default function Headline() {
-  const texts = useMemo(() => ["Front End Dev", "Problem Solver"], []);
-  const [text, setText] = useState(texts[0]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [headline, setHeadline] = useState("\u200B");
-  const [counter, setCounter] = useState(0);
+type HeadlineProps = {
+  phrases?: string[];
+  intervalMs?: number;
+};
 
-  function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+const easing = [0.22, 1, 0.36, 1];
+
+export default function Headline({
+  phrases = ["Software Engineer", "Front-End Focused", "Performance Oriented"],
+  intervalMs = 2600,
+}: HeadlineProps) {
+  const list = useMemo(() => phrases, [phrases]);
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    if (isInitialRender) {
-      sleep(3000).then(() => {
-        setIsTyping(true);
-        setIsInitialRender(false);
-      });
-    } else {
-      const timeout = setTimeout(() => {
-        if (isTyping && headline !== text) {
-          setHeadline(text.slice(0, headline.length + 1));
-        } else if (isTyping && headline === text) {
-          sleep(2000).then(() => {
-            setIsTyping(false);
-            setCounter((prev) => (prev + 1) % texts.length);
-          });
-        } else if ((!isTyping && headline === text) || !isTyping) {
-          setHeadline(text.slice(0, headline.length - 1));
-          if (headline.length <= 1) {
-            setText(texts[counter]);
-            setIsTyping(true);
-          }
-        }
-      }, 100);
-      return () => clearTimeout(timeout);
-    }
-  }, [headline, isTyping, counter, texts, text, isInitialRender]);
+    const id = setInterval(
+      () => setIndex((i) => (i + 1) % list.length),
+      intervalMs
+    );
+    return () => clearInterval(id);
+  }, [list, intervalMs]);
+
+  const current = list[index];
+
+  // Split into words for a subtle stagger
+  const words = current.split(" ");
 
   return (
-    <h1 className="title-font font-semibold text-[36px] lg:text-6xl text-transparent headline">
-      {headline}
-    </h1>
+    <div className="mt-2">
+      <div className="relative h-[3.2rem] md:h-[4.5rem] overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current}
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            exit={{ y: "-60%", opacity: 0 }}
+            transition={{ duration: 0.7, ease: easing }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <motion.h1
+              className="text-[34px] leading-tight md:text-6xl font-semibold tracking-tight text-center"
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: {},
+                show: {
+                  transition: { staggerChildren: 0.05, delayChildren: 0.05 },
+                },
+              }}
+            >
+              {words.map((w, i) => (
+                <motion.span
+                  key={`${w}-${i}`}
+                  className="inline-block mr-2"
+                  variants={{
+                    hidden: { opacity: 0, y: 14, filter: "blur(6px)" },
+                    show: {
+                      opacity: 1,
+                      y: 0,
+                      filter: "blur(0px)",
+                      transition: { duration: 0.6, ease: easing },
+                    },
+                  }}
+                >
+                  {w}
+                </motion.span>
+              ))}
+            </motion.h1>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
