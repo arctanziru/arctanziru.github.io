@@ -13,6 +13,7 @@ import Connect from "./components/Connect";
 import About from "./components/About";
 import Experience from "./components/Experience";
 import ButtonHome from "./components/ButtonHome";
+import Ziru from "./pages/Ziru";
 
 import { motion } from "framer-motion";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
@@ -35,16 +36,19 @@ function ScrollToTop() {
 
 function App() {
   const location = useLocation();
+  const isZiruPage = location.pathname === "/ziru";
 
   return (
     <LazyMotion features={domAnimation}>
-      <motion.div
-        initial={{ y: -16, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <Navbar />
-      </motion.div>
+      {!isZiruPage && (
+        <motion.div
+          initial={{ y: -16, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Navbar />
+        </motion.div>
+      )}
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.key}>
           <Route
@@ -68,6 +72,19 @@ function App() {
             }
           />
           <Route
+            path="/ziru"
+            element={
+              <motion.div
+                variants={page}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                <Ziru />
+              </motion.div>
+            }
+          />
+          <Route
             path="/projects/:slug"
             element={
               <motion.div
@@ -85,7 +102,7 @@ function App() {
         </Routes>
       </AnimatePresence>
 
-      <ButtonHome />
+      {!isZiruPage && <ButtonHome />}
       <ScrollToTop />
     </LazyMotion>
   );
